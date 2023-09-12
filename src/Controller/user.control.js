@@ -24,6 +24,16 @@ class userControl {
       await response.internal(res, err);
     }
   }
+
+  // POST /update-user-img/:id (Private) - Update user image
+  async updateImg(req, res) {
+    try {
+      const result = await userService.updateImg(req, req.params.id, req.file);
+      await response.success(res, "Image updated successfully", result);
+    } catch (err) {
+      await response.internal(res, err);
+    }
+  }
 }
 
 module.exports = new userControl();

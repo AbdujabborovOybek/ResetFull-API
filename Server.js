@@ -8,6 +8,7 @@ const router = require("./src/Router");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+app.use("/img", express.static("./src/UserImages"));
 app.use("/api", router);
 
 app.listen(port, () => console.log(`Server is running on port ${port}`));
