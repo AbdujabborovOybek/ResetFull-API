@@ -16,10 +16,14 @@ class userControl {
   // POST /signin (Public) - Login user
   async signin(req, res) {
     try {
-      const result = await userService.signin(req.body);
-      if (!result) return await response.notFound(res, result);
-      const msg = `Welcome ${result.fullname}`;
-      await response.success(res, msg, result);
+      try {
+        const result = await userService.signin(req.body);
+        if (!result) return await response.notFound(res, result);
+        const msg = `Welcome ${result.fullname}`;
+        await response.success(res, msg, result);
+      } catch (err) {
+        await response.notFound(res, err);
+      }
     } catch (err) {
       await response.internal(res, err);
     }
@@ -30,6 +34,19 @@ class userControl {
     try {
       const result = await userService.updateImg(req, req.params.id, req.file);
       await response.success(res, "Image updated successfully", result);
+    } catch (err) {
+      await response.internal(res, err);
+    }
+  }
+
+  // PATCH /update/user/:id (Private) - Update user
+  async updateUser(req, res) {
+    try {
+      const result = await userService.updateUser(req.params.id, req.body);
+      if (result) return await response.warning(res, result);
+
+      const msg = "User updated successfully";
+      await response.success(res, msg, result);
     } catch (err) {
       await response.internal(res, err);
     }

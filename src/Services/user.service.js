@@ -4,6 +4,7 @@ const { v5: uuidv5 } = require("uuid");
 const jwtService = require("./jwt.service");
 const sharp = require("sharp");
 const path = require("path");
+const fs = require("fs");
 
 class userService {
   // POST /signup (Public) - Create new user
@@ -32,8 +33,9 @@ class userService {
         const hashPassword = uuidv5(password, uuidv5.URL);
         const sql = "SELECT * FROM user WHERE password = ? AND username = ?";
         const result = await mysqlServise.query(sql, [hashPassword, username]);
+
         const msg = "Username or password is incorrect";
-        if (!result) return resolve(msg);
+        if (!result) return reject(msg);
         const user = JSON.parse(JSON.stringify(result[0]));
         const token = await jwtService.createToken(user);
 
@@ -48,6 +50,8 @@ class userService {
   async updateImg(req, id, file) {
     return new Promise(async (resolve, reject) => {
       try {
+        await this.deleteOldImg(id);
+
         const uniqu = cripto.randomBytes(4).toString("hex");
         const format = file.originalname.split(".").pop();
         const imgName = `user_${uniqu}.${format}`;
@@ -59,6 +63,41 @@ class userService {
         await mysqlServise.query(sql, [img, id]);
 
         resolve(img);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  // Delete old image
+  async deleteOldImg(userId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = "SELECT img FROM user WHERE id = ?";
+        const result = await mysqlServise.query(sql, userId);
+        const file = result[0]?.img?.split("/")?.pop() || null;
+        if (!file) return resolve(null);
+
+        const pathFile = path.join(__dirname, `../UserImages/${file}`);
+        fs.unlinkSync(pathFile);
+        resolve(null);
+      } catch (err) {
+        resolve(null);
+      }
+    });
+  }
+
+  // PATCH /update/user/:id (Private) - Update user
+  async updateUser(id, data) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = "UPDATE user SET ? WHERE id = ?";
+        try {
+          await mysqlServise.query(sql, [data, id]);
+          resolve(null);
+        } catch (err) {
+          resolve(err);
+        }
       } catch (err) {
         reject(err);
       }
