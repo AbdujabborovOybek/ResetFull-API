@@ -44,9 +44,42 @@ class userControl {
     try {
       const result = await userService.updateUser(req.params.id, req.body);
       if (result) return await response.warning(res, result);
+      await response.success(res, "User updated successfully", result);
+    } catch (err) {
+      await response.internal(res, err);
+    }
+  }
 
-      const msg = "User updated successfully";
-      await response.success(res, msg, result);
+  // GET /get/user (Private) - Get all users
+  async getAll(req, res) {
+    try {
+      const result = await userService.getAll();
+      const msg = "Users don't exist";
+      if (!result) return await response.notFound(res, msg);
+      await response.success(res, "Users retrieved successfully", result);
+    } catch (err) {
+      await response.internal(res, err);
+    }
+  }
+
+  // GET /get/user/:id (Private) - Get one user
+  async getOne(req, res) {
+    try {
+      const result = await userService.getOne(req.params.id);
+      const msg = "User doesn't exist";
+      if (!result) return await response.notFound(res, msg);
+      await response.success(res, "User retrieved successfully", result);
+    } catch (err) {
+      await response.internal(res, err);
+    }
+  }
+
+  // DELETE /delete/user/:id (Private) - Delete user
+  async deleteUser(req, res) {
+    try {
+      const result = await userService.deleteUser(req.params.id);
+      if (result) return await response.warning(res, result);
+      await response.success(res, "User deleted successfully", result);
     } catch (err) {
       await response.internal(res, err);
     }

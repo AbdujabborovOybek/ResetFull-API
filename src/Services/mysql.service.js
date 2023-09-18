@@ -15,6 +15,20 @@ class mysqlServise {
       }
     });
   }
+
+  async mutation(query, values = null) {
+    return new Promise((resolve, reject) => {
+      try {
+        db.query(query, values, (err, result) => {
+          if (err) return reject(err.sqlMessage);
+          if (result.affectedRows) return resolve(true);
+          resolve(false);
+        });
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
 }
 
 module.exports = new mysqlServise();

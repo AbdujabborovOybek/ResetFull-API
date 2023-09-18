@@ -93,7 +93,55 @@ class userService {
       try {
         const sql = "UPDATE user SET ? WHERE id = ?";
         try {
-          await mysqlServise.query(sql, [data, id]);
+          const result = await mysqlServise.mutation(sql, [data, id]);
+          if (!result) return resolve("User doesn't exist");
+          resolve(null);
+        } catch (err) {
+          resolve(err);
+        }
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  // GET /get/user (Private) - Get all users
+  async getAll() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = "SELECT * FROM user ORDER BY joined_at DESC";
+        const result = await mysqlServise.query(sql);
+        if (!result) return resolve(null);
+
+        resolve(result);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  // GET /get/user/:id (Private) - Get one user
+  async getOne(id) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = "SELECT * FROM user WHERE id = ?";
+        const result = await mysqlServise.query(sql, id);
+        if (!result) return resolve(null);
+        resolve(result[0]);
+      } catch (err) {
+        reject(err);
+      }
+    });
+  }
+
+  // DELETE /delete/user/:id (Private) - Delete user
+  async deleteUser(id) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        const sql = "DELETE FROM user WHERE id = ? ";
+        try {
+          const result = await mysqlServise.mutation(sql, id);
+          if (!result) return resolve("User doesn't exist");
           resolve(null);
         } catch (err) {
           resolve(err);
