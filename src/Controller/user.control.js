@@ -32,6 +32,10 @@ class userControl {
   // POST /update-user-img/:id (Private) - Update user image
   async updateImg(req, res) {
     try {
+      const confirm = req.user.id === req.params.id;
+      const msg = "You can't update this user";
+      if (!confirm) return await response.warning(res, msg);
+
       const result = await userService.updateImg(req, req.params.id, req.file);
       await response.success(res, "Image updated successfully", result);
     } catch (err) {
@@ -42,9 +46,14 @@ class userControl {
   // PATCH /update/user/:id (Private) - Update user
   async updateUser(req, res) {
     try {
+      const confirm = req.user.id === req.params.id;
+      const msg = "You can't update this user";
+      if (!confirm) return await response.warning(res, msg);
+
       const result = await userService.updateUser(req.params.id, req.body);
       if (result) return await response.warning(res, result);
-      await response.success(res, "User updated successfully", result);
+      const user = await userService.getOne(req.params.id);
+      await response.success(res, "User updated successfully", user);
     } catch (err) {
       await response.internal(res, err);
     }
@@ -77,6 +86,10 @@ class userControl {
   // DELETE /delete/user/:id (Private) - Delete user
   async deleteUser(req, res) {
     try {
+      const confirm = req.user.id === req.params.id;
+      const msg = "You can't update this user";
+      if (!confirm) return await response.warning(res, msg);
+
       const result = await userService.deleteUser(req.params.id);
       if (result) return await response.warning(res, result);
       await response.success(res, "User deleted successfully", result);

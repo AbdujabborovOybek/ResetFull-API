@@ -91,6 +91,8 @@ class userService {
   async updateUser(id, data) {
     return new Promise(async (resolve, reject) => {
       try {
+        data.updated_at = new Date();
+
         const sql = "UPDATE user SET ? WHERE id = ?";
         try {
           const result = await mysqlServise.mutation(sql, [data, id]);
